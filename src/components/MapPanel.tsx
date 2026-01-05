@@ -1,4 +1,4 @@
-import { Card, Button, Select } from "flowbite-react";
+import { Card, Select } from "flowbite-react";
 import MapView from "./MapView";
 import { useLandStore } from "../store/useLandStore";
 import { VEGETATION_INDICES } from "../vegetationIndices";

@@ -1,6 +1,6 @@
 import { useState, type JSX } from "react";
 import { useLandStore } from "../../store/useLandStore";
-import { Button, Label, TextInput } from "flowbite-react";
+import { Button, TextInput } from "flowbite-react";
 
 export default function LandSavePanel(): JSX.Element | null {
   const [name, setName] = useState("");
@@ -37,17 +37,6 @@ export default function LandSavePanel(): JSX.Element | null {
           Save Land
         </Button>
       </div>
-      {/* <h5>Save As New Land</h5>
-
-      <input
-        placeholder="Land name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-
-      <button onClick={handleSave} disabled={loading}>
-        {loading ? "Saving..." : "Save"}
-      </button> */}
     </div>
   );
 }
