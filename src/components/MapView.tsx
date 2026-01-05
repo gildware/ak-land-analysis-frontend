@@ -197,9 +197,11 @@ export default function MapView(): JSX.Element {
       Math.max(...lons),
       Math.max(...lats),
     ];
+    const baseURL: string =
+      import.meta.env.VITE_API_URL ?? "http://localhost:4000";
 
     const ndviTileUrl =
-      `http://localhost:4000/api/tiles/ndvi/${selectedLandId}/{z}/{x}/{y}.png` +
+      `${baseURL}/api/tiles/ndvi/${selectedLandId}/{z}/{x}/{y}.png` +
       `?dateFrom=${startDate}&dateTo=${endDate}`;
 
     if (map.getLayer("ndvi-layer")) map.removeLayer("ndvi-layer");
