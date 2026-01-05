@@ -3,6 +3,7 @@ import MapView from "./MapView";
 import { useLandStore } from "../store/useLandStore";
 import { VEGETATION_INDICES } from "../vegetationIndices";
 import IndexButton from "./forms/IndexButton";
+import LandSavePanel from "./forms/LandSavePanel";
 
 export default function MapPanel() {
   const { lands, selectedLandId, selectLand, loading } = useLandStore();
@@ -29,7 +30,7 @@ export default function MapPanel() {
                 </>
               )}
             </div>
-            <div className="mb-1 flex items-center justify-end gap-2">
+            <div className="mb-1 flex items-center justify-end gap-4">
               <div className="w-48">
                 <Select
                   disabled={loading}
@@ -51,7 +52,7 @@ export default function MapPanel() {
                 </Select>
               </div>
               <div className="flex justify-end gap-2">
-                <Button color="alternative"> + ADD</Button>
+                <LandSavePanel />
               </div>
             </div>
           </div>
