@@ -28,7 +28,7 @@ export interface CreateLandPayload {
 /**
  * Create land
  */
-export async function createLand(payload: CreateLandPayload): Promise<Land> {
+export async function createLand(payload: any): Promise<Land> {
   const { data } = await api.post<Land>("/lands", payload);
   return data;
 }

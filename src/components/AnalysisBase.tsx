@@ -4,7 +4,7 @@ import { useAnalysisStore } from "../store/useAnalysisStore";
 import { useEffect, useRef } from "react";
 import { AnalysisList } from "./AnalysisList";
 
-const Analysis = () => {
+const AnalysisBase = () => {
   const selectedLand = useLandStore(
     (s) => s.lands.find((l) => l.id === s.selectedLandId) || null,
   );
@@ -48,7 +48,7 @@ const Analysis = () => {
               indexType: "NDVI",
               dateFrom: startDate,
               dateTo: endDate,
-            });
+            } as any);
             // start polling analyses every 3s until none are pending
             if (selectedLand) {
               // clear existing poller if any
@@ -86,4 +86,4 @@ const Analysis = () => {
   );
 };
 
-export default Analysis;
+export default AnalysisBase;

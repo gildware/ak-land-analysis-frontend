@@ -9,7 +9,7 @@ import { fetchLands, createLand as createLandApi } from "../api/land.api.ts";
 export interface Land {
   id: string;
   name: string;
-  geometry: Geometry;
+  geometry: any;
 }
 
 interface CreateLandInput {
@@ -44,9 +44,9 @@ interface LandStore {
 
   createLand: (input: CreateLandInput) => Promise<Land>;
 
-  setStartDate: (date: string) => void;
+  setStartDate: (date: any) => void;
   clearStartDate: () => void;
-  setEndDate: (date: string) => void;
+  setEndDate: (date: any) => void;
   clearEndDate: () => void;
 
   toggleMapIndex: (index: string) => void;
@@ -58,7 +58,7 @@ interface LandStore {
   selectedAnalysisIndices: string[];
 }
 
-export const useLandStore = create<LandStore>((set, get) => ({
+export const useLandStore = create<LandStore>((set) => ({
   lands: [],
   selectedLandId: null,
 

@@ -8,7 +8,7 @@ import StatusBadge from "./StatusBadge";
 import NDVIChart from "./charts/NDVIChart";
 
 export function AnalysisList({ analyses }: any) {
-  function formatDate(dateString) {
+  function formatDate(dateString: any) {
     if (!dateString) return "";
 
     const date = new Date(dateString);

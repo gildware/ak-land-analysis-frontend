@@ -1,4 +1,4 @@
-import Analysis from "./Analysis";
+import AnalysisBase from "./AnalysisBase";
 import DateRange from "./forms/DateRange";
 import IndicesSelector from "./forms/IndicesSelector";
 
@@ -9,7 +9,7 @@ export default function Sidebar() {
         {/* <SatelliteSelector /> */}
         <DateRange />
         <IndicesSelector />
-        <Analysis />
+        <AnalysisBase />
       </div>
     </div>
   );

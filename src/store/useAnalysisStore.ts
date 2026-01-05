@@ -1,19 +1,19 @@
 import { create } from "zustand";
-import { createAnalysis, fetchAnalyses } from "../api/analysis.api";
+import { createAnalysis, fetchAnalyses, Analysis } from "../api/analysis.api";
 
 /* ======================
  * TYPES
  * ====================== */
 
-export interface Analysis {
-  id: string;
-  landId: string;
-  status: "pending" | "running" | "completed" | "failed";
-  indices: string[];
-  startDate: string;
-  endDate: string;
-  createdAt: string;
-}
+// export interface Analysis {
+//   id: string;
+//   landId: string;
+//   status: "pending" | "running" | "completed" | "failed";
+//   indices: string[];
+//   startDate: string;
+//   endDate: string;
+//   createdAt: string;
+// }
 
 export interface RunAnalysisPayload {
   landId: string;
