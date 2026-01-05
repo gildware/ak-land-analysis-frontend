@@ -1,0 +1,11 @@
+.map-container {
+  flex: 1;
+  width: 99%;
+  height: 99%;
+  position: relative;
+}
+
+/* IMPORTANT: keep draw controls above everything */
+.mapboxgl-ctrl-top-left {
+  z-index: 10;
+}
