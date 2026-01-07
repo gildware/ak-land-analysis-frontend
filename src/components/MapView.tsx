@@ -38,6 +38,10 @@ export default function MapView(): JSX.Element {
       style: "mapbox://styles/mapbox/satellite-streets-v12",
       center: [74.9167, 33.8667],
       zoom: 12,
+      antialias: true,
+      preserveDrawingBuffer: true,
+      // pitch: 45,
+      bearing: 0,
     });
 
     map.addControl(new mapboxgl.NavigationControl(), "top-right");
