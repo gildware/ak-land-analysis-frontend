@@ -34,7 +34,7 @@ export default function LandSavePanel(): JSX.Element | null {
           />
         </div>
         <Button color="dark" onClick={handleSave} disabled={loading}>
-          Save Land
+          Save
         </Button>
       </div>
     </div>

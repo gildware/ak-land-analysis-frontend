@@ -6,8 +6,10 @@ import {
 } from "flowbite-react";
 import StatusBadge from "./StatusBadge";
 import NDVIChart from "./charts/NDVIChart";
+import { useAnalysisStore } from "../store/useAnalysisStore";
 
 export function AnalysisList({ analyses }: any) {
+  const selectAnalysis = useAnalysisStore((s) => s.selectAnalysis);
   function formatDate(dateString: any) {
     if (!dateString) return "";
 
@@ -26,7 +28,10 @@ export function AnalysisList({ analyses }: any) {
         {analyses.map((analysis: any) => (
           <AccordionPanel key={analysis.id}>
             <AccordionTitle>
-              <div className="flex w-92 items-center gap-3">
+              <div
+                className="flex w-92 items-center gap-3"
+                onClick={() => selectAnalysis(analysis.id)}
+              >
                 {/* Left text takes all available space */}
                 <span className="flex-1 truncate font-medium text-gray-700">
                   <b>{analysis.indexType}</b> (

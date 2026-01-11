@@ -44,7 +44,7 @@ export interface Analysis {
   indexType: IndexType;
   dateFrom: string;
   dateTo: string;
-  status: "pending" | "running" | "completed" | "failed";
+  status: "pending" | "running" | "completed" | "failed" | "checking";
   result?: {
     data: AnalysisResultItem[];
     status: string;

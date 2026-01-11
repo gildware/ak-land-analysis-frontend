@@ -63,7 +63,10 @@ const AnalysisBase = () => {
                 loadAnalyses(selectedLand.id);
                 const current = useAnalysisStore.getState().analyses;
                 const hasPending = current?.some(
-                  (a) => a.status === "pending" || a.status === "running",
+                  (a) =>
+                    a.status === "pending" ||
+                    a.status === "running" ||
+                    a.status === "checking",
                 );
                 if (!hasPending && pollingRef.current) {
                   clearInterval(pollingRef.current);

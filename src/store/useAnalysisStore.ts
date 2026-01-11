@@ -28,16 +28,42 @@ interface AnalysisStore {
 
   loadAnalyses: (landId: string) => Promise<void>;
   runAnalysis: (payload: RunAnalysisPayload) => Promise<void>;
+
+  selectedAnalysisId: string | null;
+  selectedAnalysisDate: string | null;
+
+  selectAnalysis: (analysisId: string) => void;
+  selectAnalysisDate: (date: string) => void;
 }
 
 /* ======================
  * STORE
  * ====================== */
 
-export const useAnalysisStore = create<AnalysisStore>((set) => ({
+export const useAnalysisStore = create<
+  AnalysisStore & {
+    selectedAnalysisId: string | null;
+    selectedAnalysisDate: string | null;
+    selectAnalysis: (id: string) => void;
+    selectAnalysisDate: (date: string) => void;
+  }
+>((set) => ({
   analyses: [],
   loading: false,
 
+  selectedAnalysisId: null,
+  selectedAnalysisDate: null,
+
+  selectAnalysis: (id) =>
+    set({
+      selectedAnalysisId: id,
+      selectedAnalysisDate: null,
+    }),
+
+  selectAnalysisDate: (date) =>
+    set({
+      selectedAnalysisDate: date,
+    }),
   loadAnalyses: async (landId) => {
     set({ loading: true });
     try {

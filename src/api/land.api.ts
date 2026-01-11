@@ -1,50 +1,31 @@
 import { api } from "./http";
+import type { Polygon } from "geojson";
 
 /* ======================
  * TYPES
  * ====================== */
 
-export interface GeoJSONGeometry {
-  type: "Polygon";
-  coordinates: number[][][];
-}
-
-export interface Land {
+export interface ApiLand {
   id: string;
   name: string;
-  geometry: GeoJSONGeometry;
-  createdAt?: string;
+  geometry: Polygon;
 }
 
 export interface CreateLandPayload {
   name: string;
-  geometry: GeoJSONGeometry;
+  geometry: Polygon;
 }
 
 /* ======================
- * API FUNCTIONS
+ * API
  * ====================== */
 
-/**
- * Create land
- */
-export async function createLand(payload: any): Promise<Land> {
-  const { data } = await api.post<Land>("/lands", payload);
+export async function createLand(payload: CreateLandPayload): Promise<ApiLand> {
+  const { data } = await api.post<ApiLand>("/lands", payload);
   return data;
 }
 
-/**
- * Get all lands
- */
-export async function fetchLands(): Promise<Land[]> {
-  const { data } = await api.get<Land[]>("/lands");
-  return data;
-}
-
-/**
- * Get land by ID
- */
-export async function fetchLandById(id: string): Promise<Land> {
-  const { data } = await api.get<Land>(`/lands/${id}`);
+export async function fetchLands(): Promise<ApiLand[]> {
+  const { data } = await api.get<ApiLand[]>("/lands");
   return data;
 }

@@ -1,6 +1,9 @@
 import { create } from "zustand";
-import type { Geometry } from "geojson";
-import { fetchLands, createLand as createLandApi } from "../api/land.api.ts";
+import type { Geometry, Polygon } from "geojson";
+import area from "@turf/area";
+import { fetchLands, createLand as createLandApi } from "../api/land.api";
+import type { DailyNDVI } from "../domain/analysis/ndviTypes";
+import { fetchDailyNDVI } from "../api/ndvi.api";
 
 /* ======================
  * TYPES
@@ -9,7 +12,13 @@ import { fetchLands, createLand as createLandApi } from "../api/land.api.ts";
 export interface Land {
   id: string;
   name: string;
-  geometry: any;
+  geometry: Polygon;
+  areaSqm: number;
+}
+
+interface DraftGeometry {
+  geometry: Polygon;
+  areaSqm: number;
 }
 
 interface CreateLandInput {
@@ -18,65 +27,81 @@ interface CreateLandInput {
 }
 
 interface LandStore {
+  /* ---------- CORE ---------- */
   lands: Land[];
   selectedLandId: string | null;
 
-  draftGeometry: Geometry | null;
+  /* ---------- DRAFT (LIVE) ---------- */
+  draftGeometry: DraftGeometry | null;
 
+  /* ---------- ANALYSIS ---------- */
   startDate: Date | null;
   endDate: Date | null;
-
-  isLocked: boolean;
+  selectedMapIndices: string[];
+  selectedAnalysisIndices: string[];
   showNDVI: boolean;
 
+  /* ---------- UI ---------- */
+  isLocked: boolean;
   loading: boolean;
   error: string | null;
 
+  /* ---------- ACTIONS ---------- */
   setDraftGeometry: (geometry: Geometry) => void;
   clearDraft: () => void;
 
-  lock: () => void;
-  unlock: () => void;
-
   loadLands: () => Promise<void>;
+  createLand: (input: CreateLandInput) => Promise<Land>;
   selectLand: (landId: string) => void;
   clearSelectedLand: () => void;
 
-  createLand: (input: CreateLandInput) => Promise<Land>;
-
-  setStartDate: (date: any) => void;
+  setStartDate: (date: Date | null) => void;
   clearStartDate: () => void;
-  setEndDate: (date: any) => void;
+  setEndDate: (date: Date | null) => void;
   clearEndDate: () => void;
 
   toggleMapIndex: (index: string) => void;
   clearMapIndices: () => void;
-  selectedMapIndices: string[];
-
   toggleAnalysisIndex: (index: string) => void;
   clearAnalysisIndices: () => void;
-  selectedAnalysisIndices: string[];
 }
 
-export const useLandStore = create<LandStore>((set) => ({
+/* ======================
+ * STORE
+ * ====================== */
+
+export const useLandStore = create<LandStore>((set, get) => ({
   lands: [],
   selectedLandId: null,
 
+  /* ---------- DRAFT ---------- */
   draftGeometry: null,
 
+  /* ---------- ANALYSIS ---------- */
   startDate: null,
   endDate: null,
-  isLocked: false,
+  selectedMapIndices: [],
+  selectedAnalysisIndices: [],
   showNDVI: false,
 
+  /* ---------- UI ---------- */
+  isLocked: false,
   loading: false,
   error: null,
 
-  setDraftGeometry: (geometry) =>
+  /* ---------- LIVE DRAFT AREA ---------- */
+
+  setDraftGeometry: (geometry) => {
+    const polygon = geometry as Polygon;
+
     set({
-      draftGeometry: geometry,
+      draftGeometry: {
+        geometry: polygon,
+        areaSqm: area(polygon),
+      },
       isLocked: true,
-    }),
+    });
+  },
 
   clearDraft: () =>
     set({
@@ -84,14 +109,22 @@ export const useLandStore = create<LandStore>((set) => ({
       isLocked: false,
     }),
 
-  lock: () => set({ isLocked: true }),
-  unlock: () => set({ isLocked: false }),
+  /* ---------- LAND ---------- */
 
   loadLands: async () => {
     set({ loading: true, error: null });
     try {
-      const lands = await fetchLands();
-      set({ lands, loading: false });
+      const apiLands = await fetchLands();
+
+      set({
+        lands: apiLands.map((l) => ({
+          id: l.id,
+          name: l.name,
+          geometry: l.geometry as Polygon,
+          areaSqm: area(l.geometry as Polygon),
+        })),
+        loading: false,
+      });
     } catch (err: any) {
       set({
         error: err?.message ?? "Failed to load lands",
@@ -100,23 +133,24 @@ export const useLandStore = create<LandStore>((set) => ({
     }
   },
 
-  selectLand: (landId) =>
-    set({
-      selectedLandId: landId,
-      draftGeometry: null,
-      isLocked: true,
-    }),
+  createLand: async ({ name }) => {
+    const draft = get().draftGeometry;
+    if (!draft) throw new Error("No draft geometry");
 
-  clearSelectedLand: () =>
-    set({
-      selectedLandId: null,
-      isLocked: false,
-    }),
-
-  createLand: async ({ name, geometry }) => {
     set({ loading: true, error: null });
+
     try {
-      const land = await createLandApi({ name, geometry });
+      const apiLand = await createLandApi({
+        name,
+        geometry: draft.geometry,
+      });
+
+      const land: Land = {
+        id: apiLand.id,
+        name: apiLand.name,
+        geometry: draft.geometry,
+        areaSqm: draft.areaSqm,
+      };
 
       set((state) => ({
         lands: [...state.lands, land],
@@ -136,16 +170,28 @@ export const useLandStore = create<LandStore>((set) => ({
     }
   },
 
-  /* ======================
-   * ACTIONS — DATE / NDVI
-   * ====================== */
+  selectLand: (landId) =>
+    set({
+      selectedLandId: landId,
+      draftGeometry: null,
+      isLocked: true,
+    }),
+
+  clearSelectedLand: () =>
+    set({
+      selectedLandId: null,
+      isLocked: false,
+    }),
+
+  /* ---------- DATE ---------- */
 
   setStartDate: (startDate) => set({ startDate }),
   clearStartDate: () => set({ startDate: null }),
   setEndDate: (endDate) => set({ endDate }),
   clearEndDate: () => set({ endDate: null }),
-  selectedMapIndices: [],
-  selectedAnalysisIndices: [],
+
+  /* ---------- MAP INDICES ---------- */
+
   toggleMapIndex: (index) =>
     set((state) => ({
       selectedMapIndices: state.selectedMapIndices.includes(index)
@@ -154,6 +200,8 @@ export const useLandStore = create<LandStore>((set) => ({
     })),
 
   clearMapIndices: () => set({ selectedMapIndices: [] }),
+
+  /* ---------- ANALYSIS INDICES ---------- */
 
   toggleAnalysisIndex: (index) =>
     set((state) => ({

@@ -223,7 +223,7 @@ export default function MapView(): JSX.Element {
       type: "raster",
       source: "ndvi",
       paint: {
-        "raster-opacity": 0.75,
+        "raster-opacity": 1,
       },
     });
   }, [selectedMapIndices, selectedLandId, startDate, endDate, lands]);
