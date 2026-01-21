@@ -66,27 +66,27 @@ function formatDate(iso: string): string {
  * COMPONENT
  * ====================== */
 
-const VegetationIndexChart = ({ analysis }: { analysis?: Analysis }) => {
+const VegetationIndexChart = ({ analysis }: { analysis?: any }) => {
   const selectDate = useAnalysisStore((s) => s.selectAnalysisDate);
 
-  if (!analysis?.result?.length) {
+  if (!analysis?.daily?.length) {
     return <p>No data available</p>;
   }
 
-  const config = INDEX_CONFIG[analysis.indexType] ?? INDEX_CONFIG["NDVI"]; // fallback
+  const config = INDEX_CONFIG[analysis.indexType] ?? INDEX_CONFIG["NDVI"];
 
-  const chartData: ChartPoint[] = analysis.result
-    .map((item): ChartPoint | null => {
-      if (!item.value || typeof item.value.mean !== "number") {
+  const chartData: ChartPoint[] = analysis.daily
+    .map((item: any): ChartPoint | null => {
+      if (!item.stats || typeof item.stats.mean !== "number") {
         return null;
       }
 
       return {
         date: formatDate(item.date),
-        rawDate: item.date.slice(0, 10),
-        value: Number(item.value.mean.toFixed(3)),
-        min: Number(item.value.min.toFixed(3)),
-        max: Number(item.value.max.toFixed(3)),
+        rawDate: item.date,
+        value: Number(item.stats.mean.toFixed(3)),
+        min: Number(item.stats.min.toFixed(3)),
+        max: Number(item.stats.max.toFixed(3)),
       };
     })
     .filter(Boolean) as ChartPoint[];
@@ -104,9 +104,7 @@ const VegetationIndexChart = ({ analysis }: { analysis?: Analysis }) => {
           data={chartData}
           onClick={(e) => {
             if (!e || e.activeIndex == null) return;
-            const point = chartData[e.activeIndex];
-            if (!point) return;
-            selectDate(point.rawDate);
+            selectDate(chartData[e.activeIndex].rawDate);
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />
