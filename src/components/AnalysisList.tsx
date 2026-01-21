@@ -7,8 +7,17 @@ import {
 import StatusBadge from "./StatusBadge";
 import NDVIChart from "./charts/NDVIChart";
 import { useAnalysisStore } from "../store/useAnalysisStore";
+import { useEffect } from "react";
+import VegetationIndexChart from "./charts/VegetationIndexChart";
 
 export function AnalysisList({ analyses }: any) {
+  useEffect(() => {
+    console.log("Analyses updated:", analyses);
+    if (analyses.length > 0) {
+      console.log("First analysis:", analyses[0]);
+      selectAnalysis(analyses[0].id);
+    }
+  }, [analyses]);
   const selectAnalysis = useAnalysisStore((s) => s.selectAnalysis);
   function formatDate(dateString: any) {
     if (!dateString) return "";
@@ -47,7 +56,8 @@ export function AnalysisList({ analyses }: any) {
               </div>
             </AccordionTitle>
             <AccordionContent>
-              <NDVIChart analysis={analysis} />
+              <VegetationIndexChart analysis={analysis} />
+              {/* <NDVIChart analysis={analysis} /> */}
             </AccordionContent>
           </AccordionPanel>
         ))}

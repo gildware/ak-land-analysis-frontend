@@ -31,9 +31,11 @@ interface AnalysisStore {
 
   selectedAnalysisId: string | null;
   selectedAnalysisDate: string | null;
+  selectedIndexType: string | null;
 
   selectAnalysis: (analysisId: string) => void;
   selectAnalysisDate: (date: string) => void;
+  selectIndexType: (indexType: string) => void;
 }
 
 /* ======================
@@ -44,8 +46,10 @@ export const useAnalysisStore = create<
   AnalysisStore & {
     selectedAnalysisId: string | null;
     selectedAnalysisDate: string | null;
+    selectedIndexType: string | null;
     selectAnalysis: (id: string) => void;
     selectAnalysisDate: (date: string) => void;
+    selectIndexType: (indexType: string) => void;
   }
 >((set) => ({
   analyses: [],
@@ -53,6 +57,7 @@ export const useAnalysisStore = create<
 
   selectedAnalysisId: null,
   selectedAnalysisDate: null,
+  selectedIndexType: null,
 
   selectAnalysis: (id) =>
     set({
@@ -63,6 +68,10 @@ export const useAnalysisStore = create<
   selectAnalysisDate: (date) =>
     set({
       selectedAnalysisDate: date,
+    }),
+  selectIndexType: (indexType) =>
+    set({
+      selectedIndexType: indexType,
     }),
   loadAnalyses: async (landId) => {
     set({ loading: true });

@@ -10,35 +10,46 @@ import {
 import { useAnalysisStore } from "../../store/useAnalysisStore";
 
 /* ======================
- * TYPES (UPDATED)
+ * TYPES
  * ====================== */
 
-interface NDVIStats {
+interface IndexStats {
   mean: number;
   min: number;
   max: number;
 }
 
 interface AnalysisResultItem {
-  date: string; // ISO string
-  value: NDVIStats | null;
+  date: string;
+  value: IndexStats | null;
 }
 
 interface Analysis {
+  indexType: string;
   result?: AnalysisResultItem[];
 }
 
-interface NDVIChartProps {
-  analysis?: Analysis;
-}
-
 interface ChartPoint {
-  date: string; // formatted label
-  rawDate: string; // YYYY-MM-DD
-  ndvi: number;
+  date: string;
+  rawDate: string;
+  value: number;
   min: number;
   max: number;
 }
+
+/* ======================
+ * CONFIG BY INDEX
+ * ====================== */
+
+const INDEX_CONFIG: Record<
+  string,
+  { label: string; color: string; domain: [number, number] }
+> = {
+  NDVI: { label: "NDVI", color: "#22c55e", domain: [-1, 1] },
+  EVI: { label: "EVI", color: "#16a34a", domain: [-1, 1] },
+  SAVI: { label: "SAVI", color: "#15803d", domain: [-1, 1] },
+  NDWI: { label: "NDWI", color: "#0ea5e9", domain: [-1, 1] },
+};
 
 /* ======================
  * HELPERS
@@ -55,14 +66,14 @@ function formatDate(iso: string): string {
  * COMPONENT
  * ====================== */
 
-const NDVIChart = ({ analysis }: NDVIChartProps) => {
+const VegetationIndexChart = ({ analysis }: { analysis?: Analysis }) => {
   const selectDate = useAnalysisStore((s) => s.selectAnalysisDate);
 
-  console.log("NDVIChart received analysis:", analysis);
-
   if (!analysis?.result?.length) {
-    return <p>No NDVI data available</p>;
+    return <p>No data available</p>;
   }
+
+  const config = INDEX_CONFIG[analysis.indexType] ?? INDEX_CONFIG["NDVI"]; // fallback
 
   const chartData: ChartPoint[] = analysis.result
     .map((item): ChartPoint | null => {
@@ -72,43 +83,40 @@ const NDVIChart = ({ analysis }: NDVIChartProps) => {
 
       return {
         date: formatDate(item.date),
-        rawDate: item.date.slice(0, 10), // YYYY-MM-DD
-        ndvi: Number(item.value.mean.toFixed(3)),
+        rawDate: item.date.slice(0, 10),
+        value: Number(item.value.mean.toFixed(3)),
         min: Number(item.value.min.toFixed(3)),
         max: Number(item.value.max.toFixed(3)),
       };
     })
-    .filter((item): item is ChartPoint => item !== null);
+    .filter(Boolean) as ChartPoint[];
 
   if (!chartData.length) {
-    return <p>No valid NDVI values for selected period</p>;
+    return <p>No valid values for selected period</p>;
   }
 
   return (
     <div style={{ width: "100%", height: 280 }}>
-      <h4 style={{ marginBottom: 8 }}>NDVI Trend</h4>
+      <h4 style={{ marginBottom: 8 }}>{config.label} Trend</h4>
 
       <ResponsiveContainer>
         <LineChart
           data={chartData}
-          // onClick={(e) => {
-          //   if (!e || e.activeIndex == null) return;
-
-          //   const point = chartData[e.activeIndex];
-          //   if (!point) return;
-
-          //   console.log("Clicked NDVI day:", point.rawDate);
-          //   selectDate(point.rawDate); // YYYY-MM-DD
-          // }}
+          onClick={(e) => {
+            if (!e || e.activeIndex == null) return;
+            const point = chartData[e.activeIndex];
+            if (!point) return;
+            selectDate(point.rawDate);
+          }}
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />
-          <YAxis domain={[-1, 1]} />
+          <YAxis domain={config.domain} />
           <Tooltip />
           <Line
             type="monotone"
-            dataKey="ndvi"
-            stroke="#22c55e"
+            dataKey="value"
+            stroke={config.color}
             strokeWidth={2}
             dot={{ r: 3 }}
             activeDot={{ r: 6 }}
@@ -119,4 +127,4 @@ const NDVIChart = ({ analysis }: NDVIChartProps) => {
   );
 };
 
-export default NDVIChart;
+export default VegetationIndexChart;

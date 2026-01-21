@@ -45,7 +45,7 @@ const AnalysisBase = () => {
           onClick={() => {
             runAnalysis({
               landId: selectedLand?.id,
-              indexType: "NDVI",
+              indexType: selectedAnalysisIndices[0],
               dateFrom: startDate,
               dateTo: endDate,
             } as any);

@@ -25,12 +25,11 @@ export default function MapPanel() {
 
   return (
     <>
-      <Card className="flex h-full min-w-0 flex-col shadow-lg">
+      <Card className="flex h-full min-w-0 flex-col overflow-hidden shadow-lg">
         <div className="flex flex-1 items-center justify-center rounded-lg bg-gray-200">
           <MapCanvas />
         </div>
 
-        <NDVILegend />
         {selectedLand && (
           <div className="mt-2 text-sm text-gray-700">
             Area:{" "}
@@ -49,7 +48,7 @@ export default function MapPanel() {
             Draft Area: <b>{(draftGeometry.areaSqm / 10_000).toFixed(2)} ha</b>
           </div>
         )}
-        <span>Select Index to View on Map</span>
+        {/* <span>Select Index to View on Map</span>
         <div className="flex flex-wrap gap-3">
           {VEGETATION_INDICES.map((index) => (
             <IndexButton
@@ -61,17 +60,16 @@ export default function MapPanel() {
               onClick={() => toggleMapIndex(index.key)}
             />
           ))}
+        </div> */}
+        <NDVILegend />
+        <div className="mr-2 w-full min-w-0 overflow-x-auto overflow-y-hidden">
+          <DailyNDVITimeline />
         </div>
-        <div className="w-full max-w-full overflow-hidden">
-          <div className="w-full overflow-x-auto">
-            <DailyNDVITimeline />
-          </div>
-        </div>
-        {!canShowRaster() && (
+        {/* {!canShowRaster() && (
           <small>
             Note: Please Select Land, Start Date & End Date to enable
           </small>
-        )}
+        )} */}
       </Card>
     </>
   );
