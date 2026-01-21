@@ -2,9 +2,6 @@ import { create } from "zustand";
 import type { Geometry, Polygon } from "geojson";
 import area from "@turf/area";
 import { fetchLands, createLand as createLandApi } from "../api/land.api";
-import type { DailyNDVI } from "../domain/analysis/ndviTypes";
-import { fetchDailyNDVI } from "../api/ndvi.api";
-
 /* ======================
  * TYPES
  * ====================== */
@@ -23,7 +20,7 @@ interface DraftGeometry {
 
 interface CreateLandInput {
   name: string;
-  geometry: Geometry;
+  geometry: any;
 }
 
 interface LandStore {

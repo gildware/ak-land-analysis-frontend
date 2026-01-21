@@ -13,22 +13,6 @@ import { useAnalysisStore } from "../../store/useAnalysisStore";
  * TYPES
  * ====================== */
 
-interface IndexStats {
-  mean: number;
-  min: number;
-  max: number;
-}
-
-interface AnalysisResultItem {
-  date: string;
-  value: IndexStats | null;
-}
-
-interface Analysis {
-  indexType: string;
-  result?: AnalysisResultItem[];
-}
-
 interface ChartPoint {
   date: string;
   rawDate: string;
@@ -102,7 +86,7 @@ const VegetationIndexChart = ({ analysis }: { analysis?: any }) => {
       <ResponsiveContainer>
         <LineChart
           data={chartData}
-          onClick={(e) => {
+          onClick={(e: any) => {
             if (!e || e.activeIndex == null) return;
             selectDate(chartData[e.activeIndex].rawDate);
           }}

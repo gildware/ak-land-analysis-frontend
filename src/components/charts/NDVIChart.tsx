@@ -7,7 +7,6 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
-import { useAnalysisStore } from "../../store/useAnalysisStore";
 
 /* ======================
  * TYPES (UPDATED)
@@ -56,8 +55,6 @@ function formatDate(iso: string): string {
  * ====================== */
 
 const NDVIChart = ({ analysis }: NDVIChartProps) => {
-  const selectDate = useAnalysisStore((s) => s.selectAnalysisDate);
-
   console.log("NDVIChart received analysis:", analysis);
 
   if (!analysis?.result?.length) {
