@@ -1,20 +1,6 @@
 import { create } from "zustand";
 import { createAnalysis, fetchAnalyses, Analysis } from "../api/analysis.api";
 
-/* ======================
- * TYPES
- * ====================== */
-
-// export interface Analysis {
-//   id: string;
-//   landId: string;
-//   status: "pending" | "running" | "completed" | "failed";
-//   indices: string[];
-//   startDate: string;
-//   endDate: string;
-//   createdAt: string;
-// }
-
 export interface RunAnalysisPayload {
   landId: string;
   indices: string[];
@@ -36,6 +22,12 @@ interface AnalysisStore {
   selectAnalysis: (analysisId: string) => void;
   selectAnalysisDate: (date: string) => void;
   selectIndexType: (indexType: string) => void;
+
+  ndviOpacity: number;
+  setNdviOpacity: (value: number) => void;
+  isPlaying: boolean;
+  play: () => void;
+  stop: () => void;
 }
 
 /* ======================
@@ -97,4 +89,14 @@ export const useAnalysisStore = create<
       throw error;
     }
   },
+  ndviOpacity: 0.8,
+
+  setNdviOpacity: (value) =>
+    set({
+      ndviOpacity: value,
+    }),
+  isPlaying: false,
+
+  play: () => set({ isPlaying: true }),
+  stop: () => set({ isPlaying: false }),
 }));

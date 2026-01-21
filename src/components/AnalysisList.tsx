@@ -5,7 +5,6 @@ import {
   AccordionTitle,
 } from "flowbite-react";
 import StatusBadge from "./StatusBadge";
-import NDVIChart from "./charts/NDVIChart";
 import { useAnalysisStore } from "../store/useAnalysisStore";
 import { useEffect } from "react";
 import VegetationIndexChart from "./charts/VegetationIndexChart";

@@ -1,18 +1,29 @@
 import { useEffect, useRef, useState } from "react";
+import type { Position } from "geojson";
+
 import { MapCore } from "./core/MapCore";
 import { MapboxEngine } from "./engine";
 import { setupLandAOI } from "./bootstrap/useLandAOI";
+
 import { useLandStore } from "../store/useLandStore";
-import type { LandFeature } from "../domain/land/landTypes";
-import "./MapView.css";
 import { useAnalysisStore } from "../store/useAnalysisStore";
+
+import type { LandFeature } from "../domain/land/landTypes";
 import { NdviRasterLayer } from "./layers/raster/NdviRasterLayer";
 
+import "./MapView.css";
+
+/* ─────────────────────────────────────────────
+ * SINGLE MAP INSTANCE
+ * ───────────────────────────────────────────── */
 const mapCore = new MapCore(MapboxEngine);
 
 export default function MapCanvas() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const landAOIRef = useRef<ReturnType<typeof setupLandAOI> | null>(null);
+  const rasterRef = useRef<NdviRasterLayer | null>(null);
+
+  /* ───────────── stores ───────────── */
 
   const lands = useLandStore((s) => s.lands);
   const selectedLandId = useLandStore((s) => s.selectedLandId);
@@ -22,15 +33,20 @@ export default function MapCanvas() {
   const analyses = useAnalysisStore((s) => s.analyses);
   const selectedAnalysisId = useAnalysisStore((s) => s.selectedAnalysisId);
   const selectedAnalysisDate = useAnalysisStore((s) => s.selectedAnalysisDate);
+  const ndviOpacity = useAnalysisStore((s) => s.ndviOpacity);
+  useEffect(() => {
+    if (rasterRef.current) {
+      rasterRef.current.setOpacity(ndviOpacity);
+    }
+  }, [ndviOpacity]);
+  /* ───────────── ui ───────────── */
 
   const [metersPerPixel, setMetersPerPixel] = useState<number | null>(null);
-
   const lastZoomedLandId = useRef<string | null>(null);
-  const ndviRasterRef = useRef<NdviRasterLayer | null>(null);
 
-  // ─────────────────────────────────────────────
-  // Map init (ONCE)
-  // ─────────────────────────────────────────────
+  /* ─────────────────────────────────────────────
+   * MAP INIT (ONCE)
+   * ───────────────────────────────────────────── */
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -44,7 +60,8 @@ export default function MapCanvas() {
         onUpdate: setDraftGeometry,
         onDelete: clearDraft,
       });
-      ndviRasterRef.current = new NdviRasterLayer(map);
+
+      rasterRef.current = new NdviRasterLayer(map);
 
       mapCore.onResolutionChange((mpp) => {
         setMetersPerPixel(mpp);
@@ -54,27 +71,82 @@ export default function MapCanvas() {
     return () => {
       mapCore.destroy();
     };
-  }, []);
+  }, [setDraftGeometry, clearDraft]);
 
+  /* ─────────────────────────────────────────────
+   * RASTER HANDLING (analysis + date)
+   * ───────────────────────────────────────────── */
   useEffect(() => {
-    const raster = ndviRasterRef.current;
+    const raster = rasterRef.current;
 
-    if (!raster || !selectedLandId || !selectedAnalysisDate) {
+    if (
+      !raster ||
+      !selectedLandId ||
+      !selectedAnalysisId ||
+      !selectedAnalysisDate
+    ) {
       raster?.clear();
       return;
     }
 
-    raster.setDate(selectedLandId, selectedAnalysisDate);
-  }, [selectedLandId, selectedAnalysisDate]);
+    const analysis = analyses.find((a) => a.id === selectedAnalysisId);
+    if (!analysis) {
+      raster.clear();
+      return;
+    }
 
-  // ─────────────────────────────────────────────
-  // Selected land / analysis / date → AOI render
-  // ─────────────────────────────────────────────
+    const daily = analysis.daily.find((d) => d.date === selectedAnalysisDate);
+
+    // No raster for this day → clear
+    if (!daily?.raster?.png) {
+      raster.clear();
+      return;
+    }
+
+    // 🔹 Compute image bounds from land geometry
+    const land = lands.find((l) => l.id === selectedLandId);
+    if (!land) return;
+    const ring = land.geometry.coordinates[0] as Position[];
+
+    let minLng = Infinity;
+    let minLat = Infinity;
+    let maxLng = -Infinity;
+    let maxLat = -Infinity;
+
+    for (const [lng, lat] of ring) {
+      minLng = Math.min(minLng, lng);
+      minLat = Math.min(minLat, lat);
+      maxLng = Math.max(maxLng, lng);
+      maxLat = Math.max(maxLat, lat);
+    }
+    const imageCoordinates: [
+      [number, number],
+      [number, number],
+      [number, number],
+      [number, number],
+    ] = [
+      [minLng, maxLat], // top-left (NW)
+      [maxLng, maxLat], // top-right (NE)
+      [maxLng, minLat], // bottom-right (SE)
+      [minLng, minLat], // bottom-left (SW)
+    ];
+
+    raster.setImage(daily.raster.png, imageCoordinates);
+  }, [
+    lands,
+    analyses,
+    selectedLandId,
+    selectedAnalysisId,
+    selectedAnalysisDate,
+  ]);
+
+  /* ─────────────────────────────────────────────
+   * AOI DRAWING + COLORING
+   * ───────────────────────────────────────────── */
   useEffect(() => {
     const aoi = landAOIRef.current;
     if (!aoi) return;
 
-    // No land selected → clear AOI
     if (!selectedLandId) {
       aoi.setFeatures([]);
       lastZoomedLandId.current = null;
@@ -82,23 +154,21 @@ export default function MapCanvas() {
     }
 
     const land = lands.find((l) => l.id === selectedLandId);
-    if (!land || !land.geometry) {
+    if (!land) {
       aoi.setFeatures([]);
       lastZoomedLandId.current = null;
       return;
     }
 
-    // ── Extract NDVI value for selected analysis date
     let ndviValue: number | undefined;
 
     if (selectedAnalysisId && selectedAnalysisDate) {
       const analysis = analyses.find((a) => a.id === selectedAnalysisId);
-
-      const daily = analysis?.result?.data.find((d) =>
-        d.interval.from.startsWith(selectedAnalysisDate),
+      const daily = analysis?.daily.find(
+        (d) => d.date === selectedAnalysisDate,
       );
 
-      ndviValue = daily?.outputs?.ndvi?.bands?.B0?.stats?.mean ?? undefined;
+      ndviValue = daily?.stats?.mean;
     }
 
     const feature: LandFeature = {
@@ -108,39 +178,39 @@ export default function MapCanvas() {
         id: land.id,
         name: land.name,
         selected: true,
-        value: ndviValue, // 🔥 THIS TRIGGERS COLOR UPDATE
+        value: ndviValue,
       },
     };
 
-    // 1️⃣ Update AOI feature (forces Mapbox redraw)
     aoi.setFeatures([feature]);
 
-    // 2️⃣ Zoom ONLY when land changes (not date changes)
     if (lastZoomedLandId.current !== land.id) {
       aoi.zoomToLand(land.geometry);
       lastZoomedLandId.current = land.id;
     }
   }, [
     lands,
-    selectedLandId,
     analyses,
+    selectedLandId,
     selectedAnalysisId,
     selectedAnalysisDate,
   ]);
 
+  /* ─────────────────────────────────────────────
+   * RENDER
+   * ───────────────────────────────────────────── */
+
   function describeResolution(mpp: number): string {
-    if (mpp <= 3) return "Very High (Planet / Drone)";
-    if (mpp <= 10) return "High (Sentinel-2 10m)";
+    if (mpp <= 3) return "Very High (Drone / Planet)";
+    if (mpp <= 10) return "High (Sentinel-2)";
     if (mpp <= 30) return "Medium (Landsat)";
     return "Low (overview)";
   }
 
   return (
     <div className="relative h-full w-full">
-      {/* Map */}
       <div ref={containerRef} className="map-container absolute inset-0" />
 
-      {/* Resolution Overlay */}
       {metersPerPixel !== null && (
         <div className="absolute bottom-10 left-3 rounded bg-white/80 px-2 py-1 text-xs shadow backdrop-blur">
           <div>

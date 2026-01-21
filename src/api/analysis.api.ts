@@ -37,6 +37,16 @@ export interface AnalysisResultItem {
     };
   };
 }
+export interface DailyRaster {
+  png: string | null;
+  tiff: string | null;
+}
+
+export interface DailyAnalysis {
+  date: string; // YYYY-MM-DD
+  stats: NDVIStats | null;
+  raster: DailyRaster | null;
+}
 
 export interface Analysis {
   id: string;
@@ -49,6 +59,7 @@ export interface Analysis {
     data: AnalysisResultItem[];
     status: string;
   };
+  daily: DailyAnalysis[]; // ✅ ADD THIS
   createdAt: string;
 }
 

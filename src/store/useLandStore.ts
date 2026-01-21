@@ -201,14 +201,6 @@ export const useLandStore = create<LandStore>((set, get) => ({
 
   clearMapIndices: () => set({ selectedMapIndices: [] }),
 
-  /* ---------- ANALYSIS INDICES ---------- */
-
-  // toggleAnalysisIndex: (index) =>
-  //   set((state) => ({
-  //     selectedAnalysisIndices: state.selectedAnalysisIndices.includes(index)
-  //       ? state.selectedAnalysisIndices.filter((i) => i !== index)
-  //       : [...state.selectedAnalysisIndices, index],
-  //   })),
   toggleAnalysisIndex: (index) =>
     set(() => ({
       selectedAnalysisIndices: [index], // always keep only latest

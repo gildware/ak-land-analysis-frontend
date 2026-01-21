@@ -1,9 +1,8 @@
 export const NDVI_COLOR_SCALE = [
-  { value: -1.0, color: "#331A1A", label: "No vegetation / Water" },
-  { value: 0.0, color: "#663300", label: "Bare soil" },
-  { value: 0.2, color: "#99661A", label: "Sparse vegetation" },
-  { value: 0.4, color: "#1A9933", label: "Moderate vegetation" },
-  { value: 0.6, color: "#1ACC4D", label: "Healthy vegetation" },
-  { value: 0.8, color: "#008033", label: "Dense vegetation" },
-  { value: 1.0, color: "#006622", label: "Very dense vegetation" },
+  { value: -1.0, color: "#FF0000", label: "No vegetation / Water" }, // Red
+  { value: 0.0, color: "#FFFF00", label: "Bare soil" }, // Yellow
+  { value: 0.2, color: "#90EE90", label: "Sparse vegetation" }, // Light green
+  { value: 0.4, color: "#008000", label: "Moderate vegetation" }, // Green
+  { value: 0.6, color: "#006400", label: "Healthy vegetation" }, // Dark green
+  { value: 1.0, color: "#006400", label: "Very healthy vegetation" }, // Dark green
 ];
