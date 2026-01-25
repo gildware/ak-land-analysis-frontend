@@ -1,4 +1,4 @@
-import { Card, Select } from "flowbite-react";
+import { Select } from "flowbite-react";
 import LandSavePanel from "./forms/LandSavePanel";
 import { useLandStore } from "../store/useLandStore";
 

@@ -1,8 +1,7 @@
-import { Button, Card } from "flowbite-react";
+import { Button } from "flowbite-react";
 import { useLandStore } from "../store/useLandStore";
 import { useAnalysisStore } from "../store/useAnalysisStore";
 import { useEffect, useRef } from "react";
-import { AnalysisList } from "./AnalysisList";
 
 const AnalysisBase = () => {
   const selectedLand = useLandStore(

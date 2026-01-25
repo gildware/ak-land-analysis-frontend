@@ -1,4 +1,4 @@
-import { Card, Button } from "flowbite-react";
+import { Button } from "flowbite-react";
 import { useLandStore } from "../../store/useLandStore";
 import { useState } from "react";
 

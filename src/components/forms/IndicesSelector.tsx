@@ -1,4 +1,4 @@
-import { Card, Select } from "flowbite-react";
+import { Select } from "flowbite-react";
 import { useLandStore } from "../../store/useLandStore";
 import { VEGETATION_INDICES } from "../../vegetationIndices";
 
@@ -8,9 +8,9 @@ const IndicesSelector = () => {
   );
   const toggleAnalysisIndex = useLandStore((s) => s.toggleAnalysisIndex);
 
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
     const selectedOptions = Array.from(e.target.selectedOptions).map(
-      (opt) => opt.value,
+      (opt: any) => opt.value,
     );
 
     // toggle based on diff
