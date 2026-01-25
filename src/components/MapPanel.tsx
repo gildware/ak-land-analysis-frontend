@@ -24,7 +24,7 @@ export default function MapPanel() {
   const indexType = selectedAnalysis?.indexType;
 
   return (
-    <Card className="flex h-full min-w-0 flex-col overflow-hidden shadow-lg">
+    <Card className="flex h-full min-w-0 flex-col shadow-lg">
       {/* MAP */}
       <div className="flex flex-1 items-center justify-center rounded-lg bg-gray-200">
         <MapCanvas />

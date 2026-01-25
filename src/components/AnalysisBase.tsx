@@ -19,7 +19,7 @@ const AnalysisBase = () => {
       selectedLand && startDate && endDate && selectedAnalysisIndices.length > 0
     );
   };
-  const { runAnalysis, loadAnalyses, analyses } = useAnalysisStore();
+  const { runAnalysis, loadAnalyses } = useAnalysisStore();
   const pollingRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ const AnalysisBase = () => {
     };
   }, [selectedLand]);
   return (
-    <Card>
+    <div>
       <div className="flex justify-center text-center align-middle">
         <Button
           size="xl"
@@ -84,8 +84,7 @@ const AnalysisBase = () => {
           Note: Please Select Land, Start Date, End Date and Index to enable
         </small>
       )}
-      {analyses && analyses.length > 0 && <AnalysisList analyses={analyses} />}
-    </Card>
+    </div>
   );
 };
 

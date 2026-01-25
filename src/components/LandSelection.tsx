@@ -4,19 +4,12 @@ import { useLandStore } from "../store/useLandStore";
 
 const LandSelection = () => {
   const { lands, selectedLandId, selectLand, loading } = useLandStore();
-  const selectedLand = useLandStore(
-    (s) => s.lands.find((l) => l.id === s.selectedLandId) || null,
-  );
+  // const selectedLand = useLandStore(
+  //   (s) => s.lands.find((l) => l.id === s.selectedLandId) || null,
+  // );
   return (
-    <Card className="flex h-15 shadow-lg">
+    <div className="flex h-15">
       <div className="flex justify-between">
-        <div className="mb-1 flex items-center justify-end gap-2">
-          {selectedLand?.name && (
-            <>
-              Currently Viewing :<b>{selectedLand?.name}</b>
-            </>
-          )}
-        </div>
         <div className="mb-1 flex items-center justify-end gap-4">
           <div className="w-48">
             <Select
@@ -43,7 +36,7 @@ const LandSelection = () => {
           </div>
         </div>
       </div>
-    </Card>
+    </div>
   );
 };
 

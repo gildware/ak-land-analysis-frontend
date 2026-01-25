@@ -34,8 +34,14 @@ const DateRange = () => {
   };
 
   return (
-    <Card>
-      <b>Date Range</b>
+    <div>
+      <span>
+        <b> Date Range </b>(
+        {startDate && endDate
+          ? `${formatDate(startDate)} - ${formatDate(endDate)}`
+          : "No date range selected"}
+        )
+      </span>
 
       {/* PRESET BUTTONS */}
       <div className="mt-2 flex flex-wrap gap-2">
@@ -73,7 +79,7 @@ const DateRange = () => {
       </div>
 
       {/* DISPLAY SELECTED DATES */}
-      <div className="mt-4 text-sm">
+      {/* <div className="mt-4 text-sm">
         {startDate && endDate ? (
           <div className="flex flex-col gap-1">
             <div>
@@ -86,8 +92,8 @@ const DateRange = () => {
         ) : (
           <div className="text-gray-500 italic">No date range selected</div>
         )}
-      </div>
-    </Card>
+      </div> */}
+    </div>
   );
 };
 
